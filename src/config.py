@@ -25,7 +25,3 @@ class Config(Singleton):
         if Config.file is None:
             return print('Set params first!')
         return self.file.get(key)
-        
-config = Config()
-config.setParameterFile('')
-# print()
