@@ -33,6 +33,15 @@ class Frame(object):
 
     def findDepth(self, kp):
         x, y = np.around(kp.pt)
-        d = self.depth
+        d = self.depth[y, x]
+        if d != 0:
+            return d / self.camera.depth_scale
+        else:
+            # check the nearby points
+            dx = [-1, 0, 1, 0]
+            dy = [0, -1, 0, 1]
 
-
+            for i in range(4):
+                d = self.depth[y + dy[i], x + dx[i]]
+                if d != 0: return d / self.camera.depth_scale
+        return -1
