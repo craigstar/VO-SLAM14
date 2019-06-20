@@ -16,12 +16,12 @@ class Config(Singleton):
     def setParameterFile(filename):
         try:
             stream = open(filename, 'r')
-            self.file = yaml.load(stream)
+            Config.file = yaml.load(stream, Loader=yaml.SafeLoader)
         except Exception as e:
             print(e)
 
     @staticmethod
-    def get(self, key):
+    def get(key):
         if Config.file is None:
             return print('Set params first!')
-        return self.file.get(key)
+        return Config.file.get(key)

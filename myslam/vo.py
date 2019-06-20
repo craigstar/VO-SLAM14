@@ -1,3 +1,5 @@
+# import cv2
+import numpy as np
 import sophus as sp
 from .map import Map
 from .config import Config
@@ -58,7 +60,7 @@ class VO(object):
         self.orb.detect(self.cur.color, self.keypoints_cur)
 
     def computeDescriptors(self):
-        self.descriptors_curr = self.orb.compute(self.cur.color, self.keypoints_cur)
+        self.descriptors_cur = self.orb.compute(self.cur.color, self.keypoints_cur)
 
     def featureMatching(self):
         pass
