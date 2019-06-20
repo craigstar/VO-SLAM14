@@ -16,13 +16,13 @@ class Camera(object):
         return Tcw.inverse() * pc
 
     def camera2pixel(self, pc):
-        return np.array([[self.fx * pc[0] / pc[2] + self.cx],
-                         [self.fy * pc[1] / pc[2] + self.cy]])
+        return np.array([self.fx * pc[0] / pc[2] + self.cx,
+                         self.fy * pc[1] / pc[2] + self.cy])
 
     def pixel2camera(self, pp, depth=1):
-        return np.array([[(pp[0] - self.cx) * depth / self.fx],
-                         [(pp[1] - self.cy) * depth / self.fy],
-                         [depth]])
+        return np.array([(pp[0] - self.cx) * depth / self.fx,
+                         (pp[1] - self.cy) * depth / self.fy,
+                         depth])
 
     def world2pixel(self, pw, Tcw):
         return self.camera2pixel(self.world2camera(pw, Tcw))
