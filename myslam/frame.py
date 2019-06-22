@@ -3,7 +3,7 @@ import sophus as sp
 
 class Frame(object):
     """docstring for Frame"""
-    factory_id = 0
+    factory_id = -1
 
     def __init__(self, nid, time_stamp=0, Tcw=None, camera=None, color=None, depth=None):
         self.id = nid
@@ -32,7 +32,7 @@ class Frame(object):
         return np.logical_and(lower_left < pixel, pixel < uper_right).all()
 
     def findDepth(self, kp):
-        x, y = np.around(kp.pt)
+        x, y = np.around(kp.pt).astype(int)
         d = self.depth[y, x]
         if d != 0:
             return d / self.camera.depth_scale

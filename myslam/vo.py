@@ -1,4 +1,4 @@
-# import cv2
+import cv2
 import numpy as np
 import sophus as sp
 from .map import Map
@@ -23,7 +23,7 @@ class VO(object):
         self.map = Map()
         self.num_lost = 0
         self.num_inliers = 0
-        self.T_c_r_estimated = sp.SE3()
+        self.Tcr_estimated = sp.SE3()
         
         self.num_of_features = Config.get('number_of_features')
         self.scale_factor = Config.get('scale_factor')
@@ -34,13 +34,15 @@ class VO(object):
         self.key_frame_min_rot = Config.get('key_frame_min_rot')
         self.key_frame_min_trans = Config.get('key_frame_min_trans')
 
-        self.pts_3d_ref = []
         self.keypoints_cur = []
+        self.pts_3d_ref = np.zeros((0, 3))
         self.descriptors_cur = np.zeros((0, 32))
         self.descriptors_ref = np.zeros((0, 32))
 
 
-        self.orb = cv2.ORB_create(nfeatures=self.num_of_features, scaleFactor=self.scale_factor, nlevels=self.level_pyramid)
+        self.orb = cv2.ORB_create(nfeatures=self.num_of_features,
+                                  scaleFactor=self.scale_factor,
+                                  nlevels=self.level_pyramid)
 
     def addFrame(self, frame):
         if self.state is VO.INITIALIZING:
@@ -57,22 +59,28 @@ class VO(object):
         return True
 
     def extractKeyPoints(self):
-        self.orb.detect(self.cur.color, self.keypoints_cur)
+        self.keypoints_cur = self.orb.detect(self.cur.color, None)
 
     def computeDescriptors(self):
-        self.descriptors_cur = self.orb.compute(self.cur.color, self.keypoints_cur)
+        self.keypoints_cur, self.descriptors_cur = self.orb.compute(self.cur.color, self.keypoints_cur)
 
     def featureMatching(self):
         pass
 
     def setRef3DPoints(self):
-        self.pts_3d_ref.clear()
+        self.pts_3d_ref = []
+        self.descriptors_ref = []
+
         for kp, des in zip(self.keypoints_cur, self.descriptors_cur):
             d = self.ref.findDepth(kp)
             if d > 0:
                 p_cam = self.ref.camera.pixel2camera(kp.pt, d)
                 self.pts_3d_ref.append(p_cam)
                 self.descriptors_ref.append(des)
+
+        # convert list to np.ndarray
+        self.pts_3d_ref = np.array(self.pts_3d_ref)
+        self.descriptors_ref = np.array(self.descriptors_ref)
 
     def poseEstimationPnP(self):
         pass
@@ -81,12 +89,12 @@ class VO(object):
         pass
 
     def checkKeyFrame(self):
-        d = self.T_c_r_estimated.log()
+        d = self.Tcr_estimated.log()
         trans = d[:3]
         rot = d[-3:]
         if (np.linalg.norm(rot) > self.key_frame_min_rot or
             np.linalg.norm(trans) > self.key_frame_min_trans):
-            # I dont know why he uses trans. To my knowledge, it should be self.T_c_r_estimated.tanslation()
+            # I dont know why he uses trans. To my knowledge, it should be self.Tcr_estimated.tanslation()
             return True
         return False
 

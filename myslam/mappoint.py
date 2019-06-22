@@ -3,7 +3,7 @@ import numpy as np
 
 class MapPoint(object):
     """docstring for MapPoint"""
-    factory_id = 0
+    factory_id = -1
 
     def __init__(self, nid, position, norm):
         self.id = nid
